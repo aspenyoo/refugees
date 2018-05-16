@@ -26,8 +26,7 @@ else:
     filetag = 'any'
 
 
-# ======= Clean court_appln.csv =======
-# 
+# ======= CLEAN court_appln.csv =======
 # relevant variables: idnProceeding, idnCase, Appl_Code
 
 app = pd.read_csv(path + '/court_appln.csv', low_memory=False)
@@ -59,7 +58,6 @@ else:
 
 
 # ====== GENERATING FEATURE: NUMBER OF APPLCATIONS PER PROCEEDING & CASE ======
-# BLAH CAN THIS BE CLEANER?
 app['numAppsPerProc'] = 1 # placeholder
 app['numAppsPerProc'] = app['numAppsPerProc'].astype('int64')
 app['numAppsPerProc'] = app.groupby(['idnCase', 'idnProceeding'])['numAppsPerProc'].transform('count')
@@ -68,7 +66,6 @@ app['numAppsPerProc'] = app.groupby(['idnCase', 'idnProceeding'])['numAppsPerPro
 app = app.dropna(subset=['Appl_Dec'])
 
 app = app.rename(columns={"idnCase":"idncase", "idnProceeding":"idnproceeding"})
-
 
 
 # ====== PICK THE MOST RECENT GRANT APPLICATION PER PROCEEDING ======
@@ -92,46 +89,41 @@ master = master.dropna(subset= ['idncase','idnproceeding'])
 # stuff on osc_date (date charges filed or NTA)
 master = master.dropna(subset=['osc_date']) # dropping empty dates
 
+# change to correct format. delete dates with invalid format
 master['osc_date'] = master['osc_date'].astype('str')
 master = master[master['osc_date'].apply(lambda x: len(x) == 9)] # delete dates invalid formats
-
 master['osc_date'] = pd.to_datetime(master['osc_date'], format='%d%b%Y') # change to date format
 
-# delete NTA dates before 1984
-master = master[master.osc_date.dt.year>1983]
+master = master[master.osc_date.dt.year>1983] # delete NTA dates before 1984
 
 
 # comp date (date proceeding completed)
 master = master.dropna(subset=['comp_date']) # dropping empty dates
 
+# change to correct format
 master['comp_date'] = master['comp_date'].astype('str')
 master = master[master['comp_date'].apply(lambda x: len(x) == 9)] # delete dates invalid formats
+master['comp_date'] = pd.to_datetime(master['comp_date'], format='%d%b%Y') # change to date format
 
-master['comp_date'] = pd.to_datetime(master['comp_date'], format='%d%b%Y') # change to date format 
-
-#drop comp date dates before 1985
-master = master[master.comp_date.dt.year>1984]
-
-
+master = master[master.comp_date.dt.year>1984] #drop comp date dates before 1985
 
 # delete duplicates (since idnproceeding are unique, this shouldn't do anything)
 master = master.drop_duplicates(subset=['idncase', 'idnproceeding'])
 
+master['idnproceeding'] = master['idnproceeding'].astype('float64') # change dtype
 
-master['idnproceeding'] = master['idnproceeding'].astype('float64')
+
 
 # ======= MISSING DATA =======
 #replace nan attorney flags with 0.
 master.loc[pd.isnull(master.attorney_flag),'attorney_flag']=0
 
 
-# ## Merge master and court_appln
+# ====== MERGE master AND court_appln
 merged = pd.merge(app2, master, on=['idnproceeding','idncase'])
-
 
 # drop nan tracids 
 merged = merged.dropna(subset=['tracid'])
-
 
 # drop all cases where judge has fewer than 100 cases--same as in gambler's fallacy paper
 tracid_100 = merged.groupby('tracid').idnproceeding.count() >= 100 #bool indicating whether judge has at least 100 cases
@@ -140,95 +132,76 @@ merged2 = merged.loc[merged.tracid.isin(tracid_100)]
 
 
 
-# ## Load and merge tblLookupHloc and tblLookupBaseCity
+# ======= GET HEARING CITY, HEARING LOCATION CODE, BASE CITY, BASE CITY CODE ======
+# from tblLookupHloc and tblLookupBaseCity
 
-# In[34]:
-
-
-# mapping hearing_loc_code
+# load tblLookupHloc.csv for hearing loaction info
 hearingloc_map = pd.read_csv(path + '/tblLookupHloc.csv', header=None)
-
-
 hearingloc_map = hearingloc_map.rename(columns={1:'hearing_loc_code', 5:'hearing_city'})
-merged2['hearing_loc_code'] = merged2['hearing_loc_code'].astype('str').str.strip()
-hearingloc_map['hearing_loc_code'] = hearingloc_map['hearing_loc_code'].astype('str').str.strip()
-
 hearingloc_map = hearingloc_map[['hearing_loc_code', 'hearing_city']]
 
-merged2 = pd.merge(merged2, hearingloc_map, on=['hearing_loc_code'], how='left')
-
-merged2['hearing_city'] = merged2['hearing_city'].fillna('UNKNOWN')
-merged2['hearing_loc_code'] = merged2['hearing_loc_code'].fillna('UNKNOWN')
-
+# load tblLookupBaseCity.csv for base city info
 basecity_map = pd.read_csv(path + '/tblLookupBaseCity.csv', header=None)
 basecity_map = basecity_map.rename(columns={1:'base_city_code', 5:'base_city'})
 basecity_map = basecity_map[['base_city_code','base_city']]
 
+# merge based on hearing_loc_code and bas_city_code
+merged2['hearing_loc_code'] = merged2['hearing_loc_code'].astype('str').str.strip()
+hearingloc_map['hearing_loc_code'] = hearingloc_map['hearing_loc_code'].astype('str').str.strip()
+merged2 = pd.merge(merged2, hearingloc_map, on=['hearing_loc_code'], how='left')
 
-# make same dtype
 merged2['base_city_code'] = merged2['base_city_code'].astype('str').str.strip()
 basecity_map['base_city_code'] = basecity_map['base_city_code'].astype('str').str.strip()
-
-# merge and fit missing data with UNKNOWN
 merged2 = pd.merge(merged2, basecity_map, on=['base_city_code'], how='left')
+
+# fill NAs with unknown
+merged2['hearing_city'] = merged2['hearing_city'].fillna('UNKNOWN')
+merged2['hearing_loc_code'] = merged2['hearing_loc_code'].fillna('UNKNOWN')
 merged2['base_city'] = merged2['base_city'].fillna('UNKNOWN')
 merged2['base_city_code'] = merged2['base_city_code'].fillna('UNKNOWN')
 
 
-
-# ## feature cleanup on the variable containing merged information
-
-# adding additional feature based on how many asylum proceedings have been filed for the same (idnCase) 
+# ======= NEW FEATURE: NUMBER OF PROCEEDINGS PER CASE ======
 merged2['numProcPerCase'] = 1
 merged2['numProcPerCase'] = merged2['numProcPerCase'].astype('int64')
 merged2['numProcPerCase'] = merged2.groupby(['idncase'])['numProcPerCase'].transform('count')
 
+
+# ===== CHOOSE MOST RECENT FOR EACH CASE. SAVE AS merged_case ======
 # make unique at idncase level, sorting with the same logic as used to sort applications
 if flag_full:
     merged_case = merged2.sort_values(['idncase','Appl_Recd_Date'],ascending=[True,False])
 else: 
     #counting case as a grant if ANY proceeding was grant
     merged_case = merged2.sort_values(['idncase','dec','Appl_Code','Appl_Recd_Date'],ascending=[True,False,True,False])
-    
 merged_case = merged_case.groupby('idncase',as_index=False ).first()
 
 
-# get rid of merged_cases where other_comp is not null. other_comp indicates that the proceeding ended for a reason other than 
-# a judge's decision, suggesting no decision was actually made. this is less than 1% of cases once we have already filtered
-# out applications where the decision is not grant or deny and matched them to proceedings.
-merged_case = merged_case[pd.isnull(merged_case.other_comp)]
-
-# get rid of cases that don't have c_asy type (about 2% of cases--higher proportion than full_asylum version...)
-merged_case = merged_case[~pd.isnull(merged_case.c_asy_type)] 
-
+# ===== CLEANING MERGED CASE =======
 # change values of c_asy_type to be more clear
 merged_case.loc[merged_case.c_asy_type=='I','c_asy_type'] = 'aff'
 merged_case.loc[merged_case.c_asy_type=='E','c_asy_type'] = 'def'
 
+# ---- MARKING UNKOWN OBSERVATIONS AS SUCH ----
+merged_case.loc[(merged_case.nat=='??'),'nat'] = 'UNKNOWN' # ?? nationalities (159 nationalities)
+merged_case.loc[pd.isnull(merged_case.nat),'nat'] = 'UNKNOWN' # NA nationalities
 
-# drop variables that definitely won't be used as features (or won't be used to track where the data came from)
-
-merged_case = merged_case.drop(columns=['Appl_Code','Appl_Recd_Date','dec_type','other_comp','input_date','ij_code','dec_code'])
-
-# change ?? to unknwon for  159 cases with unknown nationalities
-merged_case.loc[(merged_case.nat=='??'),'nat'] = 'UNKNOWN'
-
-# mark na nats as unknown
-merged_case.loc[pd.isnull(merged_case.nat),'nat'] = 'UNKNOWN'
-# load nationality lookup table
-nat_lut =  pd.read_csv(path+ '/tblLookupNationality.csv',header=None)
-
-# mark 4 observations where the nationality code is not in the lookup table as unknown
+# 4 observations where the nationality code is not in the lookup table as unknown
+nat_lut =  pd.read_csv(path+ '/tblLookupNationality.csv',header=None) # load lookup table
 merged_case.loc[~merged_case.nat.isin(nat_lut[1]),'nat'] = 'UNKNOWN'
 
-# mark as unknown 2 observations with nationality code XX whic the LUT says corresponds 
-# to "BE REMOVED FROM THE UNITED STATES"
+# mark as unknown 2 observations with nationality code XX whic the LUT says corresponds to "BE REMOVED FROM THE UNITED STATES"
 merged_case.loc[(merged_case.nat=="XX"),'nat'] = 'UNKNOWN'
 
-# examine counts for different nationalities:
-nat_numbers = merged_case.groupby('nat',as_index=False).idncase.count().sort_values('idncase')
+# ---- REMOVING OBSERVATIONS / FEATURES -----
+# get rid of merged_cases where other_comp is not null. other_comp indicates that the proceeding ended for a reason other than a judge's decision, suggesting no decision was actually made. this is less than 1% of cases once we have already filtered out applications where the decision is not grant or deny and matched them to proceedings.
+merged_case = merged_case[pd.isnull(merged_case.other_comp)]
+
+# get rid of cases that don't have c_asy type (about 2% of cases--higher proportion in any than full asylum)
+merged_case = merged_case[~pd.isnull(merged_case.c_asy_type)]
 
 # remove nationalities with less than 10 observations
+nat_numbers = merged_case.groupby('nat',as_index=False).idncase.count().sort_values('idncase')
 nat_10 = nat_numbers.loc[nat_numbers['idncase'] > 9, 'nat']
 merged_case = merged_case[merged_case.nat.isin(nat_10)]
 
@@ -237,15 +210,13 @@ city_numbers = merged_case.groupby('base_city_code',as_index=False).idncase.coun
 cities_10 = city_numbers.loc[city_numbers['idncase'] > 9, 'base_city_code']
 merged_case = merged_case[merged_case.base_city_code.isin(cities_10)]
 
-
-
-# hearing loc--is this "court"? some of them are prisons/detention centers/airports. many "courts" have fewer than 10 obs
-# drop thewse (less than 1% of proceedings)
-
+# remove hearing locations with less than 10 observations
 court_numbers = merged_case.groupby('hearing_loc_code',as_index=False).idncase.count().sort_values('idncase')
-
 courts_10 = court_numbers.loc[court_numbers['idncase']>9,'hearing_loc_code']
 merged_case = merged_case[merged_case.hearing_loc_code.isin(courts_10)]
+
+# drop irrelevant features
+merged_case = merged_case.drop(columns=['Appl_Code','Appl_Recd_Date','dec_type','other_comp','input_date','ij_code','dec_code'])
 
 
 # ====== SAVE DATA ======
