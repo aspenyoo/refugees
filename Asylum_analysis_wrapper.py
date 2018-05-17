@@ -37,28 +37,28 @@ print('cleaning schedule: early')
 
 #create grant history over time features
 print('creating grant history features')
-#make_timefeatures(analysis_path)
+make_timefeatures(analysis_path)
 
 #split the data into training and test
 print('splitting data into training and test')
 #THIS LINE HAS BEEN CHECKED
-train_test_split(analysis_path)#UNCOMMENT ME LATER
+#train_test_split(analysis_path)#UNCOMMENT ME LATER
 
 #run logistic regression models
 print('running baseline model')
-log_reg_models(analysis_path,1,0,0,0)
+#log_reg_models(analysis_path,1,0,0,0)
 print('running early spatial')
-log_reg_models(analysis_path,0,1,1,0)
+#log_reg_models(analysis_path,0,1,1,0)
 print('running early temporal')
-log_reg_models(analysis_path,0,1,0,1)
+#log_reg_models(analysis_path,0,1,0,1)
 print('running early full')
-log_reg_models(analysis_path,0,1,0,0)
+#log_reg_models(analysis_path,0,1,0,0)
 print('running late spatial')
-log_reg_models(analysis_path,0,0,1,0)
+#log_reg_models(analysis_path,0,0,1,0)
 print('running late temporal')
-log_reg_models(analysis_path,0,0,0,1)
+#log_reg_models(analysis_path,0,0,0,1)
 print('running late full')
-log_reg_models(analysis_path,0,0,0,0)
+#log_reg_models(analysis_path,0,0,0,0)
 
 
 
