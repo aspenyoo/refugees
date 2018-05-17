@@ -326,8 +326,11 @@ def make_timefeatures(path):
 
     #make features indicating grant rate in the last year based on nationality, judge, and base city,
     #at  early  timepoint
+    print('early: nat')
     merged_data = recent_g_hist_yrs_el(merged_data,'nat',1,'osc_date')
+    print('early: tracid')
     merged_data = recent_g_hist_yrs_el(merged_data,'tracid',1,'osc_date')
+    print('early: city')
     merged_data = recent_g_hist_yrs_el(merged_data,'base_city_code',1,'osc_date')
 
 
@@ -342,7 +345,7 @@ def make_timefeatures(path):
 
 
 
-    tc_early.to_csv(path+'gr_lastyear_early.csv',index=False)
+    #tc_early.to_csv(path+'gr_lastyear_early.csv',index=False)
     
         #make features indicating grant rate in the last year based on nationality, judge, and base city,
     #at late timepoints
@@ -370,9 +373,11 @@ def make_timefeatures(path):
 
     #make features with grant rate for each judge, for the last 10 decisions back, 10 before that, 10 before that, etc
     #for 15 periods
+    print('trac id every 10 dec')
     merged_data  = g_hist_by_n_d(merged_data,'tracid',10,15)
 
     #make features indicating grant rate for a given nationality for every year period in the past
+    print('nat every year')
     merged_data = g_hist_by_period(merged_data,'nat',1,30)
 
     #save these features in a separate file
