@@ -58,7 +58,7 @@ def clean_schedule(raw_path,out_path,flag_early,flag_full):
 
 
     # ====== LOADING AND CLEANING detailed_schedule.csv =======
-    tbl_sched = pd.read_csv(out_path + 'detailed_schedule_final.csv', low_memory=False)
+    tbl_sched = pd.read_csv(out_path + '/detailed_schedule_final.csv', low_memory=False)
     tbl_sched['adj_date'] = pd.to_datetime(tbl_sched['adj_date'])
 
     tbl_sched = tbl_sched[tbl_sched.adj_date.dt.year <= 2013] # remove all rows beyond 2013
@@ -139,7 +139,7 @@ def clean_schedule(raw_path,out_path,flag_early,flag_full):
 
 
     # ====== SAVE FINAL MERGE FILE ======
-    merged_sched_master.to_csv('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + 'v2.csv', index=False)
-    merged_sched_master.to_stata('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + 'v2.dta', write_index=False)
-    merged_sched_master.to_pickle('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + 'v2.pkl.gz',compression='gzip')
+    merged_sched_master.to_csv('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + '_final.csv', index=False)
+    merged_sched_master.to_stata('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + '_final.dta', write_index=False)
+    merged_sched_master.to_pickle('/data/WorkData/spatialtemporal/finalmerge_'+ tag_asyl + '_' + tag_pred + '_final.pkl.gz',compression='gzip')
 

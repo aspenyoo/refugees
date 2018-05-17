@@ -41,7 +41,7 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
     # ====== LOAD AND MERGE DATA FILES ======
 
     # load
-    file = pd.read_csv(path + '/finalmerge_any_'+ tag_pred + 'v2.csv')
+    file = pd.read_csv(path + '/finalmerge_any_'+ tag_pred + '_final.csv')
     timefile = pd.read_csv(path + '/gr_lastyear_' + tag_pred + '.csv')
     test_cases = pd.read_csv(path + '/test_cases_last_hearing.csv', header=None)
 
@@ -234,8 +234,7 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
     plt.title('Feature Importances')
     plt.barh(range(len(indices[-10:])), feature_weight_simple[indices[-10:]], align='center')
     plt.yticks(range(len(indices[-10:])), [attributes[i] for i in indices[-10:]])
-    plt.savefig(path + tag_pred + 'logreg_feature_importance.png')
-
+    plt.tight_layout()
                                         
 
 #model names    
@@ -255,9 +254,15 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
             name = 'late_temporal'
         else:
             name = 'late'
+            
+            
+     #save the figure
+    plt.savefig(path + '/logreg_' + name + '_feature_importance.png')
+    plt.clf()
+
      #save the grid search
     grid_filename = path + '/logreg_' + name + '_grid.sav'
-    pickle.dump(results, open(grid_filename, 'wb'))   
+    pickle.dump(grid_search.cv_results_, open(grid_filename, 'wb'))   
             
        #save the model
     model_filename = path + '/logreg_' + name + '_best_model.sav'

@@ -29,10 +29,11 @@ print('cleaning detailed schedule')
 #clean_detailed_schedule(raw_path,tbl_schedule_path,analysis_path) #UNCOMMENT ME LATER
 
 #clean detailed schedule file, early and late versions
+#THESE LINES HAVE BEEN CHECKED
+print('cleaning schedule: late') 
+#clean_schedule(raw_path,analysis_path,0,0)#UNCOMMENT ME LATER
 print('cleaning schedule: early')
-clean_schedule(raw_path,analysis_path,0,0)
-print('cleaning schedule: late')
-clean_schedule(raw_path,analysis_path,1,0)
+#clean_schedule(raw_path,analysis_path,1,0)#UNCOMMENT ME LATER
 
 #create grant history over time features
 print('creating grant history features')
@@ -40,7 +41,8 @@ print('creating grant history features')
 
 #split the data into training and test
 print('splitting data into training and test')
-#train_test_split(analysis_path)
+#THIS LINE HAS BEEN CHECKED
+train_test_split(analysis_path)#UNCOMMENT ME LATER
 
 #run logistic regression models
 print('running baseline model')
@@ -60,6 +62,8 @@ log_reg_models(analysis_path,0,0,0,0)
 
 
 
-#run h2o models
+#run h2o models 
+
+#run the best model on the test data (h2o, full?
 
 #run timecourse exponential pattern analysis

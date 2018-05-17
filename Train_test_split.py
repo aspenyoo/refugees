@@ -15,10 +15,10 @@ def train_test_split(path):
 
 
     # LOAD IN CLEANED DATASET
-    master_app = pd.read_csv(path+'/finalmerge_any_latev2.csv', low_memory=False)
+    master_app = pd.read_csv(path+'/finalmerge_any_late_final.csv', low_memory=False)
 
 
-    obs_train, obs_test = train_test_split(master_app,  test_size=0.2, random_state=0)
+    obs_train, obs_test = train_test_split(master_app,  test_size=0.2, random_state=44)
 
 
 
@@ -37,6 +37,6 @@ def train_test_split(path):
     #save a list of train and test idncases.
     train_cases = obs_train.idncase
     test_cases = obs_test.idncase
-    train_cases.to_csv(path+'/train_cases_last_hearingv2.csv',index=False)
-    test_cases.to_csv(path+'/test_cases_last_hearingv2.csv',index=False)
+    train_cases.to_csv(path+'/train_cases_last_hearing_final.csv',index=False)
+    test_cases.to_csv(path+'/test_cases_last_hearing_final.csv',index=False)
 
