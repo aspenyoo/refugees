@@ -4,6 +4,7 @@ from Cleaning_schedule import clean_schedule
 from time_features import make_timefeatures
 from Train_test_split import train_test_split
 from Log_Reg_Models import log_reg_models
+from Full_Model_H2O import rf_models
 import pandas as pd
 import numpy as np
 import random
@@ -17,7 +18,7 @@ random.seed(44)
 raw_path = '/data/Dropbox/Data/Asylum_Courts/raw'
 analysis_path = '/data/WorkData/spatialtemporal'
 tbl_schedule_path = '/data/Dropbox/Data/Asylum_Courts/tbl_schedule' 
-
+'''
 print('cleaning master and app files')
 #clean and merge master and application file
 #THIS LINE HAS BEEN CHECKED
@@ -62,9 +63,24 @@ print('running late temporal')
 print('running late full')
 #log_reg_models(analysis_path,0,0,0,0)
 
-
+'''
 
 #run h2o models 
+print('running baseline model')
+rf_models(analysis_path,1,0,0,0)
+print('running early spatial')
+rf_models(analysis_path,0,1,1,0)
+print('running early temporal')
+rf_models(analysis_path,0,1,0,1)
+print('running early full')
+rf_models(analysis_path,0,1,0,0)
+print('running late spatial')
+rf_models(analysis_path,0,0,1,0)
+print('running late temporal')
+rf_models(analysis_path,0,0,0,1)
+print('running late full')
+rf_models(analysis_path,0,0,0,0)
+
 
 #run the best model on the test data (h2o, full?) (this might happen in the previous script 
 

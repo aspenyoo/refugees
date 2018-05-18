@@ -33,9 +33,9 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     # LOAD AND MERGE DATA FILES
 
     # load
-    file = pd.read_csv(path + 'finalmerge_any_' + tag_pred + '.csv')
-    timefile = pd.read_csv(path + 'gr_lastyear_' + tag_pred + '.csv')
-    test_cases = pd.read_csv(path + 'test_cases_last_hearing.csv', header=None)
+    file = pd.read_csv(path + '/finalmerge_any_' + tag_pred + '.csv')
+    timefile = pd.read_csv(path + '/gr_lastyear_' + tag_pred + '.csv')
+    test_cases = pd.read_csv(path + '/test_cases_last_hearing.csv', header=None)
 
     # merge
     if (not flag_baseline) and (not flag_spatialonly): file = pd.merge(file, timefile, on=['idnproceeding','idncase'], how='left')
@@ -53,7 +53,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     else: # late predictability
         cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc','numProcPerCase','base_city_code',
                 'hearing_loc_code', 'notice_desc','adj_time_start2','adj_time_stop2','adj_rsn_desc']
-    
+
     if flag_spatialonly: # spatial features only
         if flag_early: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek']
         else: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek',
@@ -62,7 +62,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     if flag_temponly: # temporal features only
         cols2 = ['hearing_loc_code','base_city','hearing_city']
 
-     if flag_temponly: # temporal features only
+    if flag_temponly: # temporal features only
         cols2 = ['hearing_loc_code','base_city','hearing_city']
 
     # features to include
