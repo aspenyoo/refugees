@@ -18,7 +18,7 @@ def train_test_split(path):
     master_app = pd.read_csv(path+'/finalmerge_any_latev2.csv', low_memory=False)
 
 
-    obs_train, obs_test = train_test_split(master_app,  test_size=0.2, random_state=0)
+    obs_train, obs_test = train_test_split(master_app,  test_size=0.2, random_state=44)
 
 
 
