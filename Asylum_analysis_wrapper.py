@@ -37,13 +37,15 @@ print('cleaning schedule: early')
 
 #create grant history over time features
 print('creating grant history features')
-make_timefeatures(analysis_path)
+#THIS LINE HAS BEEN CHECKED
+#make_timefeatures(analysis_path) #UNCOMMENT ME LATER
 
 #split the data into training and test
 print('splitting data into training and test')
 #THIS LINE HAS BEEN CHECKED
 #train_test_split(analysis_path)#UNCOMMENT ME LATER
 
+#THESE HAVE ALL  BEEN CHECKED
 #run logistic regression models
 print('running baseline model')
 #log_reg_models(analysis_path,1,0,0,0)
@@ -64,6 +66,6 @@ print('running late full')
 
 #run h2o models 
 
-#run the best model on the test data (h2o, full?
+#run the best model on the test data (h2o, full?) (this might happen in the previous script 
 
 #run timecourse exponential pattern analysis

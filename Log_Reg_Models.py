@@ -43,7 +43,8 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
     # load
     file = pd.read_csv(path + '/finalmerge_any_'+ tag_pred + '_final.csv')
     timefile = pd.read_csv(path + '/gr_lastyear_' + tag_pred + '.csv')
-    test_cases = pd.read_csv(path + '/test_cases_last_hearing.csv', header=None)
+    test_cases = pd.read_csv(path + '/test_cases_last_hearing_final.csv', header=None)
+
 
     # merge
     if (not flag_baseline) and (not flag_spatialonly): file = pd.merge(file, timefile, on=['idnproceeding','idncase'], how='left')
@@ -51,7 +52,6 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
     # get training dataset
     test_cases = test_cases.rename(columns={0:'num'})
     train = file[~file.idncase.isin(test_cases.num)]
-
 
     # ====== GET RELEVANT FEATURES FOR EACH MODEL =======
 
