@@ -312,7 +312,8 @@ def make_timefeatures(path):
 
     #MAIN CODE THAT RUNS FUNCTIONS ABOVE
     #read in data (note: doesn't matter early vs late, because here osc date v comp_date determines early vs late.
-    merged_data = pd.read_csv(path+'/data/WorkData/spatialtemporal/finalmerge_any_latev2.csv')
+    path = path + '/'
+    merged_data = pd.read_csv(path+'finalmerge_any_late_final.csv')
 
     #convert dates to datetime format
     merged_data['osc_date'] = pd.to_datetime(merged_data['osc_date'],infer_datetime_format = True)
@@ -324,17 +325,16 @@ def make_timefeatures(path):
 
 
     #make features indicating grant rate in the last year based on nationality, judge, and base city,
-    #at both early and late timepoints
+    #at  early  timepoint
+    print('early: nat')
     merged_data = recent_g_hist_yrs_el(merged_data,'nat',1,'osc_date')
-    merged_data = recent_g_hist_yrs_el(merged_data,'nat',1,'comp_date')
+    print('early: tracid')
     merged_data = recent_g_hist_yrs_el(merged_data,'tracid',1,'osc_date')
-    merged_data = recent_g_hist_yrs_el(merged_data,'tracid',1,'comp_date')
+    print('early: city')
     merged_data = recent_g_hist_yrs_el(merged_data,'base_city_code',1,'osc_date')
-    merged_data = recent_g_hist_yrs_el(merged_data,'base_city_code',1,'comp_date')
 
 
-    #make feature with the grant rate for the last 10 decisisons for a given judge
-    merged_data = recent_g_hist_n_d(merged_data,'tracid',10)
+
 
 
     #split up "early" and "late" timecourses to go in separate files
@@ -343,13 +343,29 @@ def make_timefeatures(path):
                              'tracid_dmy_last1yr_early','base_city_code_num_last1yr_early','base_city_code_gr_last1yr_early',
                              'base_city_code_dmy_last1yr_early']]
 
-    tc_late = merged_data[['idnproceeding','idncase','nat_num_last1yr_late','nat_gr_last1yr_late',
-                             'nat_dmy_last1yr_late','tracid_num_last1yr_late','tracid_gr_last1yr_late',
-                             'tracid_dmy_last1yr_late','base_city_code_num_last1yr_late','base_city_code_gr_last1yr_late',
-                             'base_city_code_dmy_last1yr_late','tracid_num_last1yr_late','tracid_gr_last10d','tracid_dmy_last10d']]
 
 
     tc_early.to_csv(path+'gr_lastyear_early.csv',index=False)
+    
+        #make features indicating grant rate in the last year based on nationality, judge, and base city,
+    #at late timepoints
+    #print('late: nat')
+    
+    merged_data = recent_g_hist_yrs_el(merged_data,'nat',1,'comp_date')
+    print('late: tracid')
+    merged_data = recent_g_hist_yrs_el(merged_data,'tracid',1,'comp_date')
+    print('late: city')
+    merged_data = recent_g_hist_yrs_el(merged_data,'base_city_code',1,'comp_date')
+    
+    #make feature with the grant rate for the last 10 decisisons for a given judge
+    print('late: tracid 10d')
+    merged_data = recent_g_hist_n_d(merged_data,'tracid',10)
+    
+    tc_late = merged_data[['idnproceeding','idncase','nat_num_last1yr_late','nat_gr_last1yr_late',
+                         'nat_dmy_last1yr_late','tracid_num_last1yr_late','tracid_gr_last1yr_late',
+                         'tracid_dmy_last1yr_late','base_city_code_num_last1yr_late','base_city_code_gr_last1yr_late',
+                       'base_city_code_dmy_last1yr_late','tracid_num_last1yr_late','tracid_gr_last10d','tracid_dmy_last10d']]
+
     tc_late.to_csv(path+'gr_lastyear_late.csv',index=False)
 
 
@@ -358,9 +374,11 @@ def make_timefeatures(path):
 
     #make features with grant rate for each judge, for the last 10 decisions back, 10 before that, 10 before that, etc
     #for 15 periods
+    print('trac id every 10 dec')
     merged_data  = g_hist_by_n_d(merged_data,'tracid',10,15)
 
     #make features indicating grant rate for a given nationality for every year period in the past
+    print('nat every year')
     merged_data = g_hist_by_period(merged_data,'nat',1,30)
 
     #save these features in a separate file
