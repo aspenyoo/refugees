@@ -33,9 +33,9 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     # LOAD AND MERGE DATA FILES
 
     # load
-    file = pd.read_csv(path + '/finalmerge_any_' + tag_pred + '.csv')
+    file = pd.read_csv(path + '/finalmerge_any_' + tag_pred + '_final.csv')
     timefile = pd.read_csv(path + '/gr_lastyear_' + tag_pred + '.csv')
-    test_cases = pd.read_csv(path + '/test_cases_last_hearing.csv', header=None)
+    test_cases = pd.read_csv(path + '/test_cases_last_hearing_final.csv', header=None)
 
     # merge
     if (not flag_baseline) and (not flag_spatialonly): file = pd.merge(file, timefile, on=['idnproceeding','idncase'], how='left')
@@ -164,6 +164,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
 
     print('Model: '+name)
     print('AUC: '+str(test_result.auc()))
+    print(results)
      # testing on test set
     #test, training_columns, response_column = transform(test)
     #test_result = best_model.model_performance(test)
