@@ -50,7 +50,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     # features to remove
     if flag_early: # early predictability
         cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','base_city_code',
-        'notice_desc','adj_time_start2','adj_time_stop2','durationHearing'
+        'notice_desc','adj_time_start2','adj_time_stop2','durationHearing',
         'numAppsPerProc','numProcPerCase','osc_date','adj_rsn_desc']
     else: # late predictability
         cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc','numProcPerCase','base_city_code',
