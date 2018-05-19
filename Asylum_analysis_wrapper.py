@@ -5,6 +5,7 @@ from time_features import make_timefeatures
 from Train_test_split import train_test_split
 from Log_Reg_Models import log_reg_models
 from Full_Model_H2O import rf_models
+from timecourse_patterns_h2o import timecourse_pattern_analysis
 import pandas as pd
 import numpy as np
 import random
@@ -18,58 +19,52 @@ random.seed(44)
 raw_path = '/data/Dropbox/Data/Asylum_Courts/raw'
 analysis_path = '/data/WorkData/spatialtemporal'
 tbl_schedule_path = '/data/Dropbox/Data/Asylum_Courts/tbl_schedule' 
-'''
+
 print('cleaning master and app files')
 #clean and merge master and application file
-#THIS LINE HAS BEEN CHECKED
-#clean_master_app(raw_path,analysis_path,0) #UNCOMMENT ME LATER
+clean_master_app(raw_path,analysis_path,0) 
 
 print('cleaning detailed schedule')
 #clean detailed schedule file
-#THIS LINE HAS BEEN CHECKED
-#clean_detailed_schedule(raw_path,tbl_schedule_path,analysis_path) #UNCOMMENT ME LATER
+clean_detailed_schedule(raw_path,tbl_schedule_path,analysis_path) 
 
 #clean detailed schedule file, early and late versions
-#THESE LINES HAVE BEEN CHECKED
 print('cleaning schedule: late') 
-#clean_schedule(raw_path,analysis_path,0,0)#UNCOMMENT ME LATER
+clean_schedule(raw_path,analysis_path,0,0)
 print('cleaning schedule: early')
-#clean_schedule(raw_path,analysis_path,1,0)#UNCOMMENT ME LATER
+clean_schedule(raw_path,analysis_path,1,0)
 
 #create grant history over time features
 print('creating grant history features')
-#THIS LINE HAS BEEN CHECKED
-#make_timefeatures(analysis_path) #UNCOMMENT ME LATER
+make_timefeatures(analysis_path) 
 
 #split the data into training and test
 print('splitting data into training and test')
-#THIS LINE HAS BEEN CHECKED
-#train_test_split(analysis_path)#UNCOMMENT ME LATER
+train_test_split(analysis_path)
 
-#THESE HAVE ALL  BEEN CHECKED
+
 #run logistic regression models
 print('running baseline model')
-#log_reg_models(analysis_path,1,0,0,0)
+log_reg_models(analysis_path,1,1,0,0)
 print('running early spatial')
-#log_reg_models(analysis_path,0,1,1,0)
+log_reg_models(analysis_path,0,1,1,0)
 print('running early temporal')
-#log_reg_models(analysis_path,0,1,0,1)
+log_reg_models(analysis_path,0,1,0,1)
 print('running early full')
-#log_reg_models(analysis_path,0,1,0,0)
+log_reg_models(analysis_path,0,1,0,0)
 print('running late spatial')
-#log_reg_models(analysis_path,0,0,1,0)
+log_reg_models(analysis_path,0,0,1,0)
 print('running late temporal')
-#log_reg_models(analysis_path,0,0,0,1)
+log_reg_models(analysis_path,0,0,0,1)
 print('running late full')
-#log_reg_models(analysis_path,0,0,0,0)
+log_reg_models(analysis_path,0,0,0,0)
 
-'''
 
 #run h2o models 
-#print('running baseline model')
-#rf_models(analysis_path,1,0,0,0)
-#print('running early spatial')
-#rf_models(analysis_path,0,1,1,0)
+print('running baseline model')
+rf_models(analysis_path,1,1,0,0)
+print('running early spatial')
+rf_models(analysis_path,0,1,1,0)
 print('running early temporal')
 rf_models(analysis_path,0,1,0,1)
 print('running early full')
@@ -80,8 +75,9 @@ print('running late temporal')
 rf_models(analysis_path,0,0,0,1)
 print('running late full')
 rf_models(analysis_path,0,0,0,0)
-
-
-#run the best model on the test data (h2o, full?) (this might happen in the previous script 
+print('running early full')
+rf_models(analysis_path,0,1,0,0)
 
 #run timecourse exponential pattern analysis
+print('running timecourse pattern analysis')
+timecourse_pattern_analysis(analysis_path)

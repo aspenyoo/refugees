@@ -10,16 +10,15 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     #   0 - late predictability. features a function of last hearing.
     # flag_spatialonly: baseline features + spatial features
     # flag_temponly: baseline features + temporal features
-    
-    
     # ======= PACKAGES, FILEPATHS, FLAGS ========
     import pandas as pd
     import numpy as np
-    import matplotlib.pyplot as plt
+    import sys
+    import matplotlib
+    matplotlib.use('Agg')
     from sklearn.base import BaseEstimator, TransformerMixin
     import h2o
     h2o.init()
-    from h2o.estimators.gbm import H2OGradientBoostingEstimator
     from h2o.estimators.random_forest import H2ORandomForestEstimator
     from h2o.grid.grid_search import H2OGridSearch
     import matplotlib.pyplot as plt
@@ -46,23 +45,25 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     test_cases = test_cases.rename(columns={0:'num'})
     train = file[~file.idncase.isin(test_cases.num)]
     test = file[file.idncase.isin(test_cases.num)]
-    
+
     # ====== GET RELEVANT FEATURES FOR EACH MODEL =======
     # features to remove
     if flag_early: # early predictability
-        cols = ['idncase', 'idnproceeding','adj_date','osc_date','base_city_code', 
-    	'notice_desc','adj_time_start2','adj_time_stop2', 'numAppsPerProc','numProcPerCase','adj_rsn_desc']
+        cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','base_city_code',
+        'notice_desc','adj_time_start2','adj_time_stop2','durationHearing'
+        'numAppsPerProc','numProcPerCase','osc_date','adj_rsn_desc']
     else: # late predictability
         cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc','numProcPerCase','base_city_code',
-                'hearing_loc_code', 'notice_desc','adj_time_start2','adj_time_stop2','adj_rsn_desc']
+            'notice_desc','adj_time_start2','adj_time_stop2','adj_rsn_desc','tracid_num_last1yr_late.1']
 
     if flag_spatialonly: # spatial features only
         if flag_early: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek']
         else: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek',
                       'numHearingsPerProc','durationFirstLastHearing','caseDuration']
-
     if flag_temponly: # temporal features only
         cols2 = ['hearing_loc_code','base_city','hearing_city']
+
+
 
     # features to include
     if flag_baseline: # baseline model only
@@ -97,11 +98,10 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
 
 
     # hyperparameter searching
-    estimator = H2ORandomForestEstimator(stopping_tolerance = 0.001, stopping_metric = 'auc', nfolds=5,  seed = 44)
+    estimator = H2ORandomForestEstimator(max_depth=20,stopping_tolerance = 0.001, stopping_metric = 'auc', nfolds=5,  seed = 44)
 
-    hyper_parameters = {'ntrees':[50, 100, 250, 500], 
-                        'max_depth':[2, 5, 10]}
 
+    hyper_parameters = {'ntrees':[10,50,100,200]}
     grid_search = H2OGridSearch(model = estimator, 
                                 hyper_params = hyper_parameters)
 
@@ -110,7 +110,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
                       training_frame = train)
 
     results = grid_search.get_grid(sort_by='auc',decreasing=True)
-
+    print(results)
     best_model = results.models[0]
 
 
@@ -154,19 +154,33 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
         best_model._model_json['output']['variable_importances'].as_data_frame().to_csv(f, header=True, index=False)
         f.close()
 
+
+    
     # saving feature importance plot
     plt.savefig(path + '/rf_' + name + '_feature_importance.png')
     plt.clf()
 
     # save H2O model obect 
     new_model_path = h2o.save_model(best_model, path + '/rf_' + name + '_best_model',  force=True)
-
-    print('Model: '+name)
-    print('AUC: '+str(test_result.auc()))
-    print(results)
+    
+    
      # testing on test set
-    #test, training_columns, response_column = transform(test)
-    #test_result = best_model.model_performance(test)
-    #print('Evaluating best model on test set')
-    #print('AUC: '+str(test_result.auc()))
+    test, training_columns, response_column = transform(test)
+    test_result = best_model.model_performance(test_data = test)
+    print('Model: '+name)
+    print('AUC test: '+str(test_result.auc()))
+    
+
+
+    #save grid search
+    
+    sys.stdout = open(path + '/rf_' + name + '_grid.csv', "w")
+    print(results)
+    
+    #save test results  
+    with open(path + '/rf_' + name + '_test_auc.csv', 'w') as f:
+        pd.DataFrame.from_dict({'AUC': [test_result.auc()]}).to_csv(f, header=True, index=False)
+        f.close()
+
+
 
