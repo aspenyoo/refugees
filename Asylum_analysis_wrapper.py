@@ -66,10 +66,10 @@ print('running late full')
 '''
 
 #run h2o models 
-print('running baseline model')
-rf_models(analysis_path,1,0,0,0)
-print('running early spatial')
-rf_models(analysis_path,0,1,1,0)
+#print('running baseline model')
+#rf_models(analysis_path,1,0,0,0)
+#print('running early spatial')
+#rf_models(analysis_path,0,1,1,0)
 print('running early temporal')
 rf_models(analysis_path,0,1,0,1)
 print('running early full')

@@ -10,6 +10,8 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     #   0 - late predictability. features a function of last hearing.
     # flag_spatialonly: baseline features + spatial features
     # flag_temponly: baseline features + temporal features
+    
+    
     # ======= PACKAGES, FILEPATHS, FLAGS ========
     import pandas as pd
     import numpy as np
@@ -44,11 +46,11 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     test_cases = test_cases.rename(columns={0:'num'})
     train = file[~file.idncase.isin(test_cases.num)]
     test = file[file.idncase.isin(test_cases.num)]
-
+    
     # ====== GET RELEVANT FEATURES FOR EACH MODEL =======
     # features to remove
     if flag_early: # early predictability
-        cols = ['idncase', 'idnproceeding','adj_date','osc_date','base_city_code', 'hearing_loc_code', 
+        cols = ['idncase', 'idnproceeding','adj_date','osc_date','base_city_code', 
     	'notice_desc','adj_time_start2','adj_time_stop2', 'numAppsPerProc','numProcPerCase','adj_rsn_desc']
     else: # late predictability
         cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc','numProcPerCase','base_city_code',
@@ -58,9 +60,6 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
         if flag_early: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek']
         else: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek',
                       'numHearingsPerProc','durationFirstLastHearing','caseDuration']
-
-    if flag_temponly: # temporal features only
-        cols2 = ['hearing_loc_code','base_city','hearing_city']
 
     if flag_temponly: # temporal features only
         cols2 = ['hearing_loc_code','base_city','hearing_city']
