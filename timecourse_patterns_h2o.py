@@ -67,12 +67,12 @@ def timecourse_pattern_analysis(path):
         variables = model._model_json['output']['variable_importances']['variable']
         indices = [i for i in range(len(variables)) if variables[i] in tc_cols]
         
-
+        
         df = pd.DataFrame.from_dict({'feature':[variables[i] for i in indices],
                                      'weight':[scaled_importance[i] for i in indices]})
   
         df.to_csv(path + '/rf_' +  f_type +  '_exp_weights_clean.csv')
-        return(scaled_importance)
+        return([scaled_importance[i] for i in indices])
     judge_weights = run_model(h2o,path,'judge')
     nat_weights = run_model(h2o,path,'nat')
     exp_decay_models(path,nat_weights,judge_weights)

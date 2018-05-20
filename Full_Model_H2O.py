@@ -53,8 +53,15 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
         'notice_desc','adj_time_start2','adj_time_stop2','durationHearing',
         'numAppsPerProc','numProcPerCase','osc_date','adj_rsn_desc']
     else: # late predictability
-        cols = ['idncase', 'idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc','numProcPerCase','base_city_code',
+        if flag_spatialonly:
+            cols=['idncase','idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc',
+                  'numProcPerCase','base_city_code',
+            'notice_desc','adj_time_start2','adj_time_stop2','adj_rsn_desc']
+        else:
+            cols=['idncase','idnproceeding','adj_date','comp_date','osc_date','numAppsPerProc',
+                  'numProcPerCase','base_city_code',
             'notice_desc','adj_time_start2','adj_time_stop2','adj_rsn_desc','tracid_num_last1yr_late.1']
+        
 
     if flag_spatialonly: # spatial features only
         if flag_early: cols2 = ['osc_date_delta','pres_aff','hearingYear','hearingMonth','hearingDayOfWeek']
@@ -101,7 +108,7 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     estimator = H2ORandomForestEstimator(max_depth=20,stopping_tolerance = 0.001, stopping_metric = 'auc', nfolds=5,  seed = 44)
 
 
-    hyper_parameters = {'ntrees':[10,50,100,200]}
+    hyper_parameters = {'ntrees':[20,50,100,200]}
     grid_search = H2OGridSearch(model = estimator, 
                                 hyper_params = hyper_parameters)
 
@@ -172,10 +179,16 @@ def rf_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly):
     
 
 
-    #save grid search
+
     
-    sys.stdout = open(path + '/rf_' + name + '_grid.csv', "w")
+    
+    orig_stdout = sys.stdout
+    f = path + '/rf_' + name + '_grid.csv'
+    sys.stdout = open(f, "w")
     print(results)
+    sys.stdout.close()
+    sys.stdout=orig_stdout
+
     
     #save test results  
     with open(path + '/rf_' + name + '_test_auc.csv', 'w') as f:
