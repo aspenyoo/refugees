@@ -198,8 +198,7 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
 
     # training data for regression
     X_train_tr_reg = full_pipeline_reg.fit_transform(X_train)
-
-    # BLAH DELETE THESE?!?
+    
     num_features = num_pipeline.named_steps['selector'].get_feature_names()
     cat_features = cat_pipeline_reg.named_steps['labeler'].get_feature_names()
     cat_classes = cat_pipeline_reg.named_steps['labeler'].get_orig_classes()
@@ -209,7 +208,6 @@ def log_reg_models(path,flag_baseline,flag_early,flag_spatialonly,flag_temponly)
     param_grid = {'penalty': ['l1','l2'], 'C': c_vec}
 
     # fit model
-    # BLAH: WHAT PART OF THIS DO WE NOT INCLUDE??
     log_reg = LogisticRegression()
     grid_search = GridSearchCV(log_reg, param_grid, cv=5, scoring='roc_auc', n_jobs=-1)
     grid_search.fit(X_train_tr_reg, y_train)
